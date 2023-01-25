@@ -30,19 +30,6 @@ for root in root_path:
             if mtime > one_hour_ago:
                 files.append(file_path)
 
-# フォルダ名を接頭辞にしてファイル名を変更
-renamed_files = []
-
-for file_path in files:
-    dir_name = os.path.basename(dirpath)
-    for subdir in os.path.relpath(dirpath,root).split(os.sep)[1:]:
-        dir_name = dir_name + '_' + subdir
-    file_name = os.path.basename(file_path)
-    renamed_file_name = dir_name + '_' + file_name
-    renamed_file_path = os.path.join(os.path.dirname(file_path), renamed_file_name)
-    os.rename(file_path, renamed_file_path)
-    renamed_files.append(renamed_file_path)
-
 # SFTP接続
 key = paramiko.RSAKey.from_private_key_file(private_key, password=password)
 transport = paramiko.Transport((hostname, 22))
@@ -50,10 +37,15 @@ transport.connect(username=username, pkey=key)
 sftp = transport.open_sftp()
 
 # アップロード
-for file_path in renamed_files:
-    sftp.put(file_path, os.path.basename(file_path))
+for file_path in files:
+    dir_name = os.path.basename(dirpath)
+    for subdir in os.path.relpath(dirpath,root).split(os.sep)[1:]:
+        dir_name = dir_name + '_' + subdir
+    file_name = os.path.basename(file_path)
+    renamed_file_name = dir_name + '_' + file_name
+    sftp.put(file_path, renamed_file_name)
     # アップロードしたファイル名をログに出力
-logger.info(os.path.basename(file_path))
+    logger.info(renamed_file_name)
 
 # SFTP切断
 sftp.close()
