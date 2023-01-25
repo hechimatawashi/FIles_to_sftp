@@ -19,7 +19,7 @@ password = keyring.get_password("pemfile", "username")
 
 # n時間以内に変更、新規作成が行われたファイルを取得
 now = datetime.datetime.now()
-one_hour_ago = now - datetime.timedelta(hours=12)
+one_hour_ago = now - datetime.timedelta(hours=n)
 files = []
 for root in root_path:
     for dirpath, dirnames, filenames in os.walk(root):
